@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animated 3D Shopping Cart</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 0;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      padding: 40px;
+      width: 800px;
+      animation: floatIn 1s ease-out;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes floatIn {
+      from {
+        transform: rotateX(90deg);
+        opacity: 0;
+      }
+      to {
+        transform: rotateX(0);
+        opacity: 1;
+      }
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #5EFCE8, #736EFE);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    button:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background: #f9f9f9;
+    }
+
+    .update-btn, .delete-btn {
+      background-color: #736EFE;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .update-btn:hover,
+    .delete-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .print-btn {
+      background: #00c6ff;
+      background: linear-gradient(to right, #0072ff, #00c6ff);
+      color: white;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 12px;
+      width: 100%;
+      font-weight: bold;
+    }
+
+    .customer-form, .cart-form {
+      margin-bottom: 30px;
+      background: #f3f8ff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .total-section {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 20px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🛒 Stylish 3D Shopping Cart</h2>
+
+    <form method="POST" action="/" class="customer-form">
+      <label>Customer ID:</label>
+      <input type="text" name="customer_id" value="{{ session.customer_id or '' }}" required>
+
+      <label>Customer Name:</label>
+      <input type="text" name="customer_name" value="{{ session.customer_name or '' }}" required>
+
+      <label>Phone Number:</label>
+      <input type="text" name="customer_phone" value="{{ session.customer_phone or '' }}" required>
+
+      <button type="submit">💾 Save Customer Info</button>
+    </form>
+
+    <form action="/add_item" method="post" class="cart-form">
+      <label>Select Item:</label>
+      <select name="item" required>
+        <option disabled selected>-- Choose a product --</option>
+        {% for item, price in items.items() %}
+        <option value="{{ item }}">{{ item }} - ₹{{ price }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Quantity:</label>
+      <input type="number" name="quantity" min="1" required>
+
+      <button type="submit">➕ Add to Cart</button>
+    </form>
+
+    {% if cart %}
+    <h3>🧾 Items in Your Cart</h3>
+    <table>
+      <tr>
+        <th>ID</th><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Actions</th>
+      </tr>
+      {% for item in cart %}
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.name }}</td>
+        <td>₹{{ item.price }}</td>
+        <td>
+          <form action="/update/{{ item.id }}" method="post">
+            <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+            <button type="submit" class="update-btn">Update</button>
+          </form>
+        </td>
+        <td>₹{{ item.price * item.quantity }}</td>
+        <td>
+          <a href="/delete/{{ item.id }}"><button class="delete-btn">Delete</button></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="total-section">Total Price: ₹{{ total }}</div>
+
+    <a href="/bill"><button class="print-btn">🖨️ Print Final Bill</button></a>
+    {% endif %}
+  </div>
+</body>
+</html>

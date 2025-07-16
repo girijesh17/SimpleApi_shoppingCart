@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Bill</title>
+    <style>
+        body { font-family: 'Segoe UI'; background: #fff; padding: 40px; }
+        h2 { text-align: center; color: #333; }
+        .details { margin-bottom: 20px; }
+        .details strong { display: inline-block; width: 150px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #aaa; padding: 10px; text-align: center; }
+        .total { text-align: right; font-size: 18px; margin-top: 20px; }
+        .print-btn {
+            margin-top: 30px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .print-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h2>🧾 Customer Bill</h2>
+    <div class="details">
+        <p><strong>Customer ID:</strong> {{ customer_id }}</p>
+        <p><strong>Customer Name:</strong> {{ customer_name }}</p>
+        <p><strong>Phone Number:</strong> {{ customer_phone }}</p>
+        <p><strong>Date & Time:</strong> {{ date_time }}</p>
+    </div>
+
+    <table>
+        <tr><th>ID</th><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr>
+        {% for item in cart %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>₹{{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price * item.quantity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="total"><strong>Total Amount: ₹{{ total }}</strong></div>
+
+    <button onclick="window.print()" class="print-btn">🖨️ Print This Bill</button>
+</body>
+</html>
